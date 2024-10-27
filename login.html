@@ -1,0 +1,73 @@
+		<html>
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>Logon Screen</title>
+			<style>
+				body {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					height: 100vh;
+					margin: 0;
+					background-color: #f0f0f5;
+					font-family: Arial, sans-serif;
+				}
+				.container {
+					text-align: center;
+					background-color: #ffffff;
+					border: 1px solid #ddd;
+					border-radius: 8px;
+					padding: 20px;
+					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+					width: 300px;
+				}
+				h1 {
+					color: #333;
+					margin-bottom: 20px;
+				}
+				.input-text {
+					font-size: 16px;
+					padding: 10px;
+					width: 100%;
+					border: 1px solid #ccc;
+					border-radius: 4px;
+					box-sizing: border-box;
+					margin-bottom: 15px;
+				}
+				.button {
+					font-size: 16px;
+					padding: 10px;
+					margin: 5px;
+					width: 45%;
+					border: none;
+					border-radius: 5px;
+					cursor: pointer;
+					color: #fff;
+					background-color: #007bff;
+					transition: background-color 0.3s ease;
+				}
+				.button:hover {
+					background-color: #0056b3;
+				}
+				.button-container {
+					display: flex;
+					justify-content: space-between;
+				}
+			</style>
+		</head>
+		<body>
+			<div class="container">
+				<h1>Logon</h1>
+			<form action="/login-submit">
+				<input type="text" class="input-text" placeholder="Enter Username" id="input1">
+				<input type="text" class="input-text" placeholder="Enter Password" id="input2">
+
+				<div class="button-container">
+					<button class="button" onclick="redirectToPage(1)">Login</button>
+					<button class="button" onclick="redirectToPage(2)">Extra Button</button>
+				</div>
+            </form>
+		</body>
+		</html>
+		
