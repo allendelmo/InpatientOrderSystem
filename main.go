@@ -72,7 +72,7 @@ func OrderHandler(w http.ResponseWriter, r *http.Request) {
 
 // Submit Handler
 func SubmitHandler(w http.ResponseWriter, r *http.Request) {
-	type Medical_Request struct {
+	type Medication_Request struct {
 		File_Number int
 		Nurse_Name  string
 		Ward        string
