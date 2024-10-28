@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Order Request Form</title>
+				<style>
+					body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+					h1 { color: #333; }
+					p { color: #666; }
+					form { max-width: 300px; margin: 0 auto; }
+					input[type="text"], input[type="submit"] {
+						width: 100%;
+						padding: 10px;
+						margin: 5px 0;
+						font-size: 1em;
+					}
+				</style>
+			</head>
+			<body>
+				<h1>Medical Request Form</h1>
+				<p>Fill out the form below:</p>
+				
+				<form method="POST" action="/Submit">
+					<label for="name">Patient ID</label>
+					<input type="id" id="name" name="File_Number" placeholder="Enter Patient ID" required>
+					<br></br>
+					<label for="email">Nurse Name</label>
+					<input type="text" id="email" name="Nurse_Name" placeholder="Enter Nurse Name" required>
+					
+					<label for="email">Ward</label>
+					<input type="text" id="email" name="Ward" placeholder="Enter Ward Number" required>
+					
+					<!-- <label for="email">Bed No.</label>
+					<input type="text" id="email" name="Bed" placeholder="Enter Bed Number" required>
+					
+					<label for="email">Medication</label>
+					<input type="text" id="email" name="Medication" placeholder="Enter Medication" required>
+					
+					<label for="email">UOM</label>
+					<input type="text" id="email" name="UOM" placeholder="Enter UOM" required>
+					
+					<label for="email">Remarks</label>
+					<input type="text" id="email" name="Nurse_Remarks" placeholder="Enter Remarks" required>-->
+					<button type="submit">Submit</button>
+				</form>
+			</body>
+			</html>
