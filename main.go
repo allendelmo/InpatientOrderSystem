@@ -105,12 +105,17 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 	//http.Redirect(w, r, "/Order", http.StatusSeeOther)
 }
 
+func TrackOrderHandler(w http.ResponseWriter, r *http.Request) {
+	templates.ExecuteTemplate(w, "TrackOrder.html", nil)
+}
+
 func main() {
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/dashboard", dashboardHandler)
 	http.HandleFunc("/logout", logoutHandler)
 	http.HandleFunc("/Order", OrderHandler)
 	http.HandleFunc("/Submit", SubmitHandler)
+	http.HandleFunc("/TrackOrder", TrackOrderHandler)
 	fmt.Println("Server started at :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
