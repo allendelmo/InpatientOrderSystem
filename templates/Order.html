@@ -1,59 +1,110 @@
 <!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>Order Request Form</title>
-				<style>
-					body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-					h1 { color: #333; }
-					p { color: #666; }
-					form { max-width: 300px; margin: 0 auto; }
-					input[type="text"], input[type="submit"] {
-						width: 100%;
-						padding: 10px;
-						margin: 5px 0;
-						font-size: 1em;
-					}
-				</style>
-			</head>
-			<body>
-				<h1>Medical Request Form</h1>
-				<p>Fill out the form below:</p>
-				
-				<form method="POST" action="/Submit">
-					<label for="ID">Patient ID</label>
-					<input type="id" id="name" name="File_Number" placeholder="Enter Patient ID" required>
-					<br></br>
-					<label for="Nurse Name">Nurse Name</label>
-					<input type="text" id="Nurse Name" name="Nurse_Name" placeholder="Enter Nurse Name" required>
-					
-					<label for="email">Ward</label>
-					<input type="text" id="email" name="Ward" placeholder="Enter Ward Number" required>
-					
-					<label for="Bed No">Bed No.</label>
-					<input type="text" id="Bed No" name="Bed" placeholder="Enter Bed Number" required>
-					
-					<label for="Medication">Medication</label>
-					<input type="text" id="Medication" name="Medication" placeholder="Enter Medication" required>
-					
-					Select UOM <select name="UOM" id="UOM" required>
-						  <option value="Tablet" selected="selected">Tablet</option>
-						  <option value="Capsule" selected="selected">Capsule</option>
-						  <option value="Ampule" selected="selected">Ampule</option>
-						  <option value="Vial" selected="selected">Vial</option>
-						  <option value="Lozenge" selected="selected">Lozenge</option>
-						  <option value="Tube" selected="selected">Tube</option>
-						  <option value="Suppository" selected="selected">Suppository</option>
-						  <option value="Bottle" selected="selected">Bottle</option>
-						  <option value="Sachet" selected="selected">Sachet</option>
-						  <option value="All Medication" selected="selected">All Medication</option>
-						</select>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Request Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            background-color: #f4f6f8;
+            padding: 50px 0;
+        }
+        h1 {
+            color: #444;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #777;
+            margin-bottom: 20px;
+        }
+        form {
+            max-width: 500px;
+            background: #fff;
+            padding: 30px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            color: #555;
+            font-weight: bold;
+            text-align: left;
+        }
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #333;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Medical Request Form</h1>
+    <p>Please fill out the form below:</p>
+    
+    <form method="POST" action="/Submit">
+        <label for="ID">Patient ID</label>
+        <input type="text" id="name" name="File_Number" placeholder="Enter Patient ID" required>
 
-					<label for="Remarks">Remarks</label>
-					<input type="text" id="Remarks" name="Nurse_Remarks" placeholder="Enter Remarks" required>
-					<button type="submit"  onclick="return confirm('Are you sure you want to send the order?')">Submit</button>
+        <label for="Nurse Name">Nurse Name</label>
+        <input type="text" id="Nurse Name" name="Nurse_Name" placeholder="Enter Nurse Name" required>
 
-				</form>
-			</body>
-			</html>
+        <label for="Ward">Ward</label>
+        <input type="text" id="email" name="Ward" placeholder="Enter Ward Number" required>
+
+        <label for="Bed No">Bed No.</label>
+        <input type="text" id="Bed No" name="Bed" placeholder="Enter Bed Number" required>
+
+        <label for="Medication">Medication</label>
+        <input type="text" id="Medication" name="Medication" placeholder="Enter Medication" required>
+
+        <label for="UOM">Select UOM</label>
+        <select name="UOM" id="UOM" required>
+            <option value="Tablet">Tablet</option>
+            <option value="Capsule">Capsule</option>
+            <option value="Ampule">Ampule</option>
+            <option value="Vial">Vial</option>
+            <option value="Lozenge">Lozenge</option>
+            <option value="Tube">Tube</option>
+            <option value="Suppository">Suppository</option>
+            <option value="Bottle">Bottle</option>
+            <option value="Sachet">Sachet</option>
+            <option value="All Medication">All Medication</option>
+        </select>
+
+        <label for="Remarks">Remarks</label>
+        <textarea id="remarks" name="Nurse_Remarks" placeholder="Enter additional remarks" required></textarea>
+        
+        <button type="submit" onclick="return confirm('Are you sure you want to send the order?')">Submit</button>
+    </form>
+</body>
+</html>

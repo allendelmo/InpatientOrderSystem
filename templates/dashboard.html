@@ -54,6 +54,244 @@
     <div class="content">
         <h1>Inpatient Order System</h1>
         <p>This is the content area. It adjusts automatically to the sidebar width.</p>
+        <div class="navbar">
+            <div>
+                <a href="#pending-requests" onclick="showPendingRequests()">Pending Requests</a>
+                <a href="#order-history" onclick="showOrderHistory()">Order History</a>
+            </div>
+            <div class="user-section">
+                <span>Welcome, User123</span>
+                <a href="#profile">Profile</a>
+                <a href="#logout">Logout</a>
+            </div>
+        </div>
+        
+        <!-- Dashboard Content -->
+        <div id="dashboard-content">
+            <!-- Default is Pending Requests -->
+            <h1>Pending Requests</h1>
+        
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient ID</th>
+                        <th>Ward</th>
+                        <th>Bed No.</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="patientTable">
+                    <tr onclick="openPopup('P001', 'Ward 1', '101', 'Pending')">
+                        <td>P001</td>
+                        <td>Ward 1</td>
+                        <td>101</td>
+                        <td class="status-pending">Pending</td>
+                    </tr>
+                    <tr onclick="openPopup('P002', 'Ward 2', '102', 'Partially Dispensed')">
+                        <td>P002</td>
+                        <td>Ward 2</td>
+                        <td>102</td>
+                        <td class="status-partial">Partially Dispensed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Popup for medication list -->
+        <div class="overlay" id="overlay"></div>
+        <div class="popup" id="popup">
+            <span class="close-popup" onclick="closePopup()">&#10006;</span>
+            <h2>Medication List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Medication Name</th>
+                        <th>Quantity</th>
+                        <th>UOM</th>
+                        <th>Dispense</th>
+                    </tr>
+                </thead>
+                <tbody id="medicationTable">
+                    <!-- Medication rows will be inserted here dynamically -->
+                </tbody>
+            </table>
+            <div class="popup-buttons">
+                <button onclick="dispenseMedications()">Dispense Selected</button>
+            </div>
+        </div>
+        
+        <script>
+            const patientMedications = {
+                'P001': [
+                    { name: 'Paracetamol', quantity: 20, uom: 'Tablet', status: 'Pending' },
+                    { name: 'Ibuprofen', quantity: 10, uom: 'Capsule', status: 'Pending' }
+                ],
+                'P002': [
+                    { name: 'Amoxicillin', quantity: 15, uom: 'Vial', status: 'Completed' },
+                    { name: 'Cetirizine', quantity: 5, uom: 'Tablet', status: 'Pending' }
+                ]
+            };
+        
+            let currentPatient = '';
+            let currentWard = '';
+            let currentBedNo = '';
+        
+            function openPopup(patientID, ward, bedNo, status) {
+                currentPatient = patientID;
+                currentWard = ward;
+                currentBedNo = bedNo;
+        
+                const medicationTable = document.getElementById('medicationTable');
+                medicationTable.innerHTML = '';
+        
+                patientMedications[patientID].forEach((medication, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${medication.name}</td>
+                        <td>${medication.quantity}</td>
+                        <td>${medication.uom}</td>
+                        <td><input type="checkbox" ${medication.status === 'Completed' ? 'disabled checked' : ''} id="med_${index}"></td>
+                    `;
+                    medicationTable.appendChild(row);
+                });
+        
+                document.getElementById('popup').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            }
+        
+            function closePopup() {
+                document.getElementById('popup').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+            }
+        
+            function dispenseMedications() {
+                const meds = patientMedications[currentPatient];
+                let allCompleted = true;
+                let partial = false;
+        
+                meds.forEach((medication, index) => {
+                    const checkbox = document.getElementById(`med_${index}`);
+                    if (checkbox.checked && medication.status === 'Pending') {
+                        medication.status = 'Completed';
+                    }
+                    if (medication.status === 'Pending') {
+                        allCompleted = false;
+                        partial = checkbox.checked ? true : partial;
+                    }
+                });
+        
+                // Update status in main table
+                const row = Array.from(document.getElementById('patientTable').rows).find(r => r.cells[0].innerText === currentPatient);
+                if (allCompleted) {
+                    row.cells[3].innerText = 'Completed';
+                    row.cells[3].classList.remove('status-partial');
+                    row.cells[3].classList.add('status-completed');
+                } else if (partial) {
+                    row.cells[3].innerText = 'Partially Dispensed';
+                    row.cells[3].classList.remove('status-pending');
+                    row.cells[3].classList.add('status-partial');
+                }
+        
+                closePopup();
+            }
+        
+            function showPendingRequests() {
+                document.getElementById('dashboard-content').innerHTML = `
+                    <h1>Pending Requests</h1>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Ward</th>
+                                <th>Bed No.</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientTable">
+                            <tr onclick="openPopup('P001', 'Ward 1', '101', 'Pending')">
+                                <td>P001</td>
+                                <td>Ward 1</td>
+                                <td>101</td>
+                                <td class="status-pending">Pending</td>
+                            </tr>
+                            <tr onclick="openPopup('P002', 'Ward 2', '102', 'Partially Dispensed')">
+                                <td>P002</td>
+                                <td>Ward 2</td>
+                                <td>102</td>
+                                <td class="status-partial">Partially Dispensed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+        
+            function showOrderHistory() {
+                document.getElementById('dashboard-content').innerHTML = `
+                    <h1>Order History</h1>
+                    <div class="search-bar">
+                        <input type="text" id="searchPatientID" placeholder="Search by Patient ID">
+                        <input type="date" id="searchDate">
+                        <button onclick="filterOrders()">Search</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Order Date</th>
+                                <th>Medication Name</th>
+                                <th>Quantity</th>
+                                <th>UOM</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderHistoryTable">
+                            <tr>
+                                <td>P001</td>
+                                <td>2024-10-01</td>
+                                <td>Paracetamol</td>
+                                <td>20</td>
+                                <td>Tablet</td>
+                                <td class="status-completed">Completed</td>
+                            </tr>
+                            <tr>
+                                <td>P002</td>
+                                <td>2024-10-02</td>
+                                <td>Ibuprofen</td>
+                                <td>10</td>
+                                <td>Capsule</td>
+                                <td class="status-partial">Partially Dispensed</td>
+                            </tr>
+                            <tr>
+                                <td>P001</td>
+                                <td>2024-10-03</td>
+                                <td>Amoxicillin</td>
+                                <td>15</td>
+                                <td>Vial</td>
+                                <td class="status-completed">Completed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+        
+            function filterOrders() {
+                const patientID = document.getElementById('searchPatientID').value.toLowerCase();
+                const date = document.getElementById('searchDate').value;
+        
+                const rows = document.querySelectorAll('#orderHistoryTable tr');
+                rows.forEach(row => {
+                    const rowPatientID = row.cells[0].innerText.toLowerCase();
+                    const rowDate = row.cells[1].innerText;
+        
+                    if ((patientID === '' || rowPatientID.includes(patientID)) &&
+                        (date === '' || rowDate === date)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+        </script>
     </div>
 </body>
 </html>
