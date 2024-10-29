@@ -22,27 +22,38 @@
 				<p>Fill out the form below:</p>
 				
 				<form method="POST" action="/Submit">
-					<label for="name">Patient ID</label>
+					<label for="ID">Patient ID</label>
 					<input type="id" id="name" name="File_Number" placeholder="Enter Patient ID" required>
 					<br></br>
-					<label for="email">Nurse Name</label>
-					<input type="text" id="email" name="Nurse_Name" placeholder="Enter Nurse Name" required>
+					<label for="Nurse Name">Nurse Name</label>
+					<input type="text" id="Nurse Name" name="Nurse_Name" placeholder="Enter Nurse Name" required>
 					
 					<label for="email">Ward</label>
 					<input type="text" id="email" name="Ward" placeholder="Enter Ward Number" required>
 					
-					<!-- <label for="email">Bed No.</label>
-					<input type="text" id="email" name="Bed" placeholder="Enter Bed Number" required>
+					<label for="Bed No">Bed No.</label>
+					<input type="text" id="Bed No" name="Bed" placeholder="Enter Bed Number" required>
 					
-					<label for="email">Medication</label>
-					<input type="text" id="email" name="Medication" placeholder="Enter Medication" required>
+					<label for="Medication">Medication</label>
+					<input type="text" id="Medication" name="Medication" placeholder="Enter Medication" required>
 					
-					<label for="email">UOM</label>
-					<input type="text" id="email" name="UOM" placeholder="Enter UOM" required>
-					
-					<label for="email">Remarks</label>
-					<input type="text" id="email" name="Nurse_Remarks" placeholder="Enter Remarks" required>-->
-					<button type="submit">Submit</button>
+					Select UOM <select name="UOM" id="UOM" required>
+						  <option value="Tablet" selected="selected">Tablet</option>
+						  <option value="Capsule" selected="selected">Capsule</option>
+						  <option value="Ampule" selected="selected">Ampule</option>
+						  <option value="Vial" selected="selected">Vial</option>
+						  <option value="Lozenge" selected="selected">Lozenge</option>
+						  <option value="Tube" selected="selected">Tube</option>
+						  <option value="Suppository" selected="selected">Suppository</option>
+						  <option value="Bottle" selected="selected">Bottle</option>
+						  <option value="Sachet" selected="selected">Sachet</option>
+						  <option value="All Medication" selected="selected">All Medication</option>
+						</select>
+
+					<label for="Remarks">Remarks</label>
+					<input type="text" id="Remarks" name="Nurse_Remarks" placeholder="Enter Remarks" required>
+					<button type="submit"  onclick="return confirm('Are you sure you want to send the order?')">Submit</button>
+
 				</form>
 			</body>
 			</html>

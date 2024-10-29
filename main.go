@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/sessions"
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
@@ -45,8 +46,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Welcome handler (protected page)
-func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+// Dashboard handler (protected page)
+func dashboardHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
@@ -72,7 +73,7 @@ func OrderHandler(w http.ResponseWriter, r *http.Request) {
 
 // Submit Handler
 func SubmitHandler(w http.ResponseWriter, r *http.Request) {
-	type Medication_Request struct {
+	type Medication_Orders struct {
 		File_Number int
 		Nurse_Name  string
 		Ward        string
@@ -86,19 +87,27 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 		File_Number := r.FormValue("File_Number")
 		Nurse_Name := r.FormValue("Nurse_Name")
 		Ward := r.FormValue("Ward")
+		Bed := r.FormValue("Bed")
+		Medication := r.FormValue("Medication")
+		Status := "PENDING"
+		UOM := r.FormValue("UOM")
+		Request_time := time.Now()
+		Nurse_Remarks := r.FormValue("Nurse_Remarks")
 
-		_, err := DB.Exec("INSERT INTO Medication_Request (FILE_NUMBER,NURSE_NAME,WARD,BED,MEDICATION,UOM,REQUEST_TIME,NURSE_REMARKS,STATUS,PHARMACY_REMARKS) VALUES (?,?,?,?,?,?,?,?,?,?)", File_Number, Nurse_Name, Ward, nil, nil, nil, nil, nil, nil, nil)
+		_, err := DB.Exec("INSERT INTO Medication_Orders (FILE_NUMBER,NURSE_NAME,WARD,BED,MEDICATION,UOM,REQUEST_TIME,NURSE_REMARKS,STATUS,PHARMACY_REMARKS) VALUES (?,?,?,?,?,?,?,?,?,?)", File_Number, Nurse_Name, Ward, Bed, Medication, UOM, Request_time.Format(time.ANSIC), Nurse_Remarks, Status, nil)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
-	http.Redirect(w, r, "/Order", http.StatusSeeOther)
+	defer DB.Close()
+	templates.ExecuteTemplate(w, "dashboard.html", nil)
+	//http.Redirect(w, r, "/Order", http.StatusSeeOther)
 }
 
 func main() {
 	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/dashboard", welcomeHandler)
+	http.HandleFunc("/dashboard", dashboardHandler)
 	http.HandleFunc("/logout", logoutHandler)
 	http.HandleFunc("/Order", OrderHandler)
 	http.HandleFunc("/Submit", SubmitHandler)
