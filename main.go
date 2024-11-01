@@ -232,10 +232,6 @@ func displayhandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func format(s string) {
-	panic("unimplemented")
-}
-
 func main() {
 	const port = "8080"
 	mux := http.NewServeMux()
