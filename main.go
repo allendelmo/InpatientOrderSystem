@@ -133,11 +133,11 @@ func OrderHandler(w http.ResponseWriter, r *http.Request) {
 
 // Submit Handler
 func SubmitHandler(w http.ResponseWriter, r *http.Request) {
-	type Medication_Orders struct {
-		File_Number int
-		Nurse_Name  string
-		Ward        string
-	}
+	// type Medication_Orders struct {
+	// 	File_Number int
+	// 	Nurse_Name  string
+	// 	Ward        string
+	// }
 	//var DB *sql.DB
 	DB, err := sql.Open("sqlite3", "./DB.db")
 	if err != nil {
@@ -179,17 +179,25 @@ func userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return
-	}
+	if r.Method == "POST" {
+		username := r.FormValue("username")
+		password := r.FormValue("password")
+		First_Name := r.FormValue("First Name")
+		Last_Name := r.FormValue("Last Name")
+		Ward := r.FormValue("Ward")
+		Permission := r.FormValue("Permission")
+		createdAt := time.Now()
 
-	_, err = DB.Exec("INSERT INTO users (username, password) VALUES (?,?)", username, hashedPassword)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			return
+		}
+
+		_, err = DB.Exec("INSERT INTO users (username, password,ward,PERMISSION,createdat,first_name,last_name) VALUES (?,?,?,?,?,?,?)", username, hashedPassword, Ward, Permission, createdAt.Format(time.ANSIC), First_Name, Last_Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 

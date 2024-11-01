@@ -61,18 +61,31 @@
 				<h1>User Registration</h1>
 				<form action="/register" method="POST">
 					<label for="username">Username:</label>
-					<input type="text" id="username" name="username" required>
+					<input type="text" id="username" placeholder="Enter Username" name="username" required>
 					<br></br>
-					Password: <input type="password" value="password"  name="password" id="password" required><br><br>
-                    Confirm Password: <input type="password" value="password"  name="password" id="password" required><br><br>
-                    Name: <input type="password" value="password"  name="password" id="password" required><br><br>
-                    Ward: <input type="password" value="password"  name="password" id="password" required><br><br>
-                    Access: <input type="password" value="password"  name="password" id="password" required>
-                    <label for="Access">Select Access/label>
-                        <select name="Acess" id="Access" required>
-                            <option value="Pharmacy">Pharmacy</option>
-                            <option value="Nurse">Nurse</option>
-                        </select>
+					Password: <input type="password" placeholder="Enter password"  name="password" id="password" required><br><br>
+                    <!-- Confirm Password: <input type="password" placeholder="Confirm Password"   name="password" id="password" required><br><br> -->
+                    First Name: <input type="text" placeholder="Enter First Name" name="First Name" id="First Name" required><br><br>
+					Last Name: <input type="text" placeholder="Enter Last Name" name="Last Name" id="Last Name" required><br><br>
+                    <label for="Ward">Select Ward</label>
+                        <select name="Ward" id="Ward" required>
+                            <option value="Ward 1">Ward 1</option>
+                            <option value="Ward 2">Ward 2</option>
+							<option value="Ward 3">Ward 3</option>
+							<option value="Ward 4">Ward 4</option>
+							<option value="Ward 5">Ward 5</option>
+							<option value="ICU">ICU</option>
+							<option value="Daycare">Daycare</option>
+							<option value=nil></option>
+                        </select><br><br>
+
+                    <label for="Permission">Select Access</label>
+                        <select name="Permission" id="Permission" required>
+                            <option value="PHARMACY">Pharmacy</option>
+                            <option value="NURSE">Nurse</option>
+							<option value="ADMIN">Admin</option>
+                        </select><br><br>
+
 					<!-- <input type="checkbox" onclick="myFunction()">Show Password
 
 						<script>
@@ -87,7 +100,7 @@
 						</script> -->
 
 
-					<button type="submit">Login</button>
+					<button type="submit">Register</button>
 					
 				</form>
 		</body>
