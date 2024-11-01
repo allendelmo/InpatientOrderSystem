@@ -194,21 +194,26 @@ func userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", loginPage)  //.Methods("GET")
-	http.HandleFunc("/login", login) //.Methods("POST")
-	http.HandleFunc("/dashboard", dashboardHandler)
-	http.HandleFunc("/logout", logoutHandler)
-	http.HandleFunc("/Order", OrderHandler)
-	http.HandleFunc("/Submit", SubmitHandler)
-	http.HandleFunc("/TrackOrder", TrackOrderHandler)
-	http.HandleFunc("/register", userRegisterHandler)
-	http.HandleFunc("/reg", RegisterHandler)
+	const port = "8080"
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", loginPage)  //.Methods("GET")
+	mux.HandleFunc("/login", login) //.Methods("POST")
+	mux.HandleFunc("/dashboard", dashboardHandler)
+	mux.HandleFunc("/logout", logoutHandler)
+	mux.HandleFunc("/Order", OrderHandler)
+	mux.HandleFunc("/Submit", SubmitHandler)
+	mux.HandleFunc("/TrackOrder", TrackOrderHandler)
+	mux.HandleFunc("/register", userRegisterHandler)
+	mux.HandleFunc("/reg", RegisterHandler)
 	//http.HandleFunc("/authenticate", authenticate)
 
-	// router := mux.NewRouter()
-	// // Define routes
-	// router.HandleFunc("/", loginPage).Methods("GET")
-	// router.HandleFunc("/login", login).Methods("POST")
-	fmt.Println("Server started at :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// server config
+	server := &http.Server{
+		Addr:    ":" + port,
+		Handler: mux,
+	}
+
+	fmt.Println("Server started at :", port)
+	log.Fatal(server.ListenAndServe())
 }
