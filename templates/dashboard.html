@@ -5,296 +5,207 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inpatient Order System</title>
     <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             font-family: Arial, sans-serif;
             display: flex;
+            background-color: #f4f4f9;
         }
+        
         .sidebar {
             width: 250px;
             height: 100vh;
-            background-color: #333;
+            background-color: #2c3e50;
             color: white;
             display: flex;
             flex-direction: column;
             position: fixed;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
+        
+        .sidebar h2 {
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            border-bottom: 1px solid #444;
+        }
+        
         .sidebar a {
-            color: white;
-            padding: 15px;
+            color: #bdc3c7;
+            padding: 15px 20px;
             text-decoration: none;
             display: block;
+            font-size: 18px;
+            transition: background 0.3s ease, color 0.3s ease;
         }
+        
         .sidebar a:hover {
-            background-color: #575757;
+            background-color: #34495e;
+            color: #ecf0f1;
         }
+        
         .content {
             margin-left: 250px;
             padding: 20px;
             width: calc(100% - 250px);
         }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ecf0f1;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .navbar div a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar div a:hover {
+            color: #2980b9;
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-section span {
+            margin-right: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        
+        .user-section a {
+            margin-left: 10px;
+            text-decoration: none;
+            color: #c0392b;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+        
+        .user-section a:hover {
+            color: #e74c3c;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: white;
+            z-index: 1000;
+            width: 400px;
+        }
+
+        .popup table {
+            margin-bottom: 10px;
+        }
+
+        .popup-buttons {
+            text-align: right;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .status-pending {
+            color: orange;
+        }
+
+        .status-partial {
+            color: blue;
+        }
+
+        .status-completed {
+            color: green;
+        }
     </style>
 </head>
-<!-- <script>
-    // JavaScript function to handle redirection
-    function redirectToPage() {
-        window.location.href = "/Order"; // URL of the target page
-    }
-</script>  -->
 <body>
     <div class="sidebar">
-        <h2 style="text-align: center; padding: 20px;">Inpatient Order System</h2>
+        <h2>Inpatient Order System</h2>
         <a href="/Order">Request an Order</a>
-        <a href="/TrackOrder">Track Orders</a>
+        <!-- <a href="/TrackOrder">Track Orders</a> -->
         <a href="/nhistory">History</a>
         <a href="/reg">Register</a>
         <a href="/logout">Logout</a>
-        
     </div>
     <div class="content">
-        <h1>Inpatient Order System</h1>
-        <p>This is the content area. It adjusts automatically to the sidebar width.</p>
-        <div class="navbar">
-            <div>
-                <a href="#pending-requests" onclick="showPendingRequests()">Pending Requests</a>
-                <a href="#order-history" onclick="showOrderHistory()">Order History</a>
-            </div>
-            <div class="user-section">
-                <span>Welcome, User123</span>
-                <a href="#profile">Profile</a>
-                <a href="#logout">Logout</a>
-                
-            </div>
-        </div>
-        
         <!-- Dashboard Content -->
         <div id="dashboard-content">
-            <!-- Default is Pending Requests -->
-            <h1>Pending Requests</h1>
-        
+            <h1>Order Monitoring</h1>
+            <p>Track Orders here: </p>
             <table>
                 <thead>
-                    <tr>
+                    <tr >
                         <th>Patient ID</th>
+                        <th>Nurse Name</th>
                         <th>Ward</th>
                         <th>Bed No.</th>
+                        <th>Date of Request</th>
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody id="patientTable">
-                    <tr onclick="openPopup('P001', 'Ward 1', '101', 'Pending')">
-                        <td>P001</td>
-                        <td>Ward 1</td>
-                        <td>101</td>
-                        <td class="status-pending">Pending</td>
-                    </tr>
-                    <tr onclick="openPopup('P002', 'Ward 2', '102', 'Partially Dispensed')">
-                        <td>P002</td>
-                        <td>Ward 2</td>
-                        <td>102</td>
-                        <td class="status-partial">Partially Dispensed</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Popup for medication list -->
-        <div class="overlay" id="overlay"></div>
-        <div class="popup" id="popup">
-            <span class="close-popup" onclick="closePopup()">&#10006;</span>
-            <h2>Medication List</h2>
-            <table>
-                <thead>
+                <tbody>
+                    {{range .}}
                     <tr>
-                        <th>Medication Name</th>
-                        <th>Quantity</th>
-                        <th>UOM</th>
-                        <th>Dispense</th>
+                        <td>{{.File_Number}}</td>
+                        <td>{{.Nurse_Name}}</td>
+                        <td>{{.Ward}}</td>
+                        <td>{{.Bed}}</td>
+                        <td>{{.Request_time}}</td>
+                        <td>{{.Status}}</td>
                     </tr>
-                </thead>
-                <tbody id="medicationTable">
-                    <!-- Medication rows will be inserted here dynamically -->
+                        {{ end }}
                 </tbody>
             </table>
-            <div class="popup-buttons">
-                <button onclick="dispenseMedications()">Dispense Selected</button>
-            </div>
-        </div>
-        
-        <script>
-            const patientMedications = {
-                'P001': [
-                    { name: 'Paracetamol', quantity: 20, uom: 'Tablet', status: 'Pending' },
-                    { name: 'Ibuprofen', quantity: 10, uom: 'Capsule', status: 'Pending' }
-                ],
-                'P002': [
-                    { name: 'Amoxicillin', quantity: 15, uom: 'Vial', status: 'Completed' },
-                    { name: 'Cetirizine', quantity: 5, uom: 'Tablet', status: 'Pending' }
-                ]
-            };
-        
-            let currentPatient = '';
-            let currentWard = '';
-            let currentBedNo = '';
-        
-            function openPopup(patientID, ward, bedNo, status) {
-                currentPatient = patientID;
-                currentWard = ward;
-                currentBedNo = bedNo;
-        
-                const medicationTable = document.getElementById('medicationTable');
-                medicationTable.innerHTML = '';
-        
-                patientMedications[patientID].forEach((medication, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${medication.name}</td>
-                        <td>${medication.quantity}</td>
-                        <td>${medication.uom}</td>
-                        <td><input type="checkbox" ${medication.status === 'Completed' ? 'disabled checked' : ''} id="med_${index}"></td>
-                    `;
-                    medicationTable.appendChild(row);
-                });
-        
-                document.getElementById('popup').style.display = 'block';
-                document.getElementById('overlay').style.display = 'block';
-            }
-        
-            function closePopup() {
-                document.getElementById('popup').style.display = 'none';
-                document.getElementById('overlay').style.display = 'none';
-            }
-        
-            function dispenseMedications() {
-                const meds = patientMedications[currentPatient];
-                let allCompleted = true;
-                let partial = false;
-        
-                meds.forEach((medication, index) => {
-                    const checkbox = document.getElementById(`med_${index}`);
-                    if (checkbox.checked && medication.status === 'Pending') {
-                        medication.status = 'Completed';
-                    }
-                    if (medication.status === 'Pending') {
-                        allCompleted = false;
-                        partial = checkbox.checked ? true : partial;
-                    }
-                });
-        
-                // Update status in main table
-                const row = Array.from(document.getElementById('patientTable').rows).find(r => r.cells[0].innerText === currentPatient);
-                if (allCompleted) {
-                    row.cells[3].innerText = 'Completed';
-                    row.cells[3].classList.remove('status-partial');
-                    row.cells[3].classList.add('status-completed');
-                } else if (partial) {
-                    row.cells[3].innerText = 'Partially Dispensed';
-                    row.cells[3].classList.remove('status-pending');
-                    row.cells[3].classList.add('status-partial');
-                }
-        
-                closePopup();
-            }
-        
-            function showPendingRequests() {
-                document.getElementById('dashboard-content').innerHTML = `
-                    <h1>Pending Requests</h1>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Patient ID</th>
-                                <th>Ward</th>
-                                <th>Bed No.</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="patientTable">
-                            <tr onclick="openPopup('P001', 'Ward 1', '101', 'Pending')">
-                                <td>P001</td>
-                                <td>Ward 1</td>
-                                <td>101</td>
-                                <td class="status-pending">Pending</td>
-                            </tr>
-                            <tr onclick="openPopup('P002', 'Ward 2', '102', 'Partially Dispensed')">
-                                <td>P002</td>
-                                <td>Ward 2</td>
-                                <td>102</td>
-                                <td class="status-partial">Partially Dispensed</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                `;
-            }
-        
-            function showOrderHistory() {
-                document.getElementById('dashboard-content').innerHTML = `
-                    <h1>Order History</h1>
-                    <div class="search-bar">
-                        <input type="text" id="searchPatientID" placeholder="Search by Patient ID">
-                        <input type="date" id="searchDate">
-                        <button onclick="filterOrders()">Search</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Patient ID</th>
-                                <th>Order Date</th>
-                                <th>Medication Name</th>
-                                <th>Quantity</th>
-                                <th>UOM</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orderHistoryTable">
-                            <tr>
-                                <td>P001</td>
-                                <td>2024-10-01</td>
-                                <td>Paracetamol</td>
-                                <td>20</td>
-                                <td>Tablet</td>
-                                <td class="status-completed">Completed</td>
-                            </tr>
-                            <tr>
-                                <td>P002</td>
-                                <td>2024-10-02</td>
-                                <td>Ibuprofen</td>
-                                <td>10</td>
-                                <td>Capsule</td>
-                                <td class="status-partial">Partially Dispensed</td>
-                            </tr>
-                            <tr>
-                                <td>P001</td>
-                                <td>2024-10-03</td>
-                                <td>Amoxicillin</td>
-                                <td>15</td>
-                                <td>Vial</td>
-                                <td class="status-completed">Completed</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                `;
-            }
-        
-            function filterOrders() {
-                const patientID = document.getElementById('searchPatientID').value.toLowerCase();
-                const date = document.getElementById('searchDate').value;
-        
-                const rows = document.querySelectorAll('#orderHistoryTable tr');
-                rows.forEach(row => {
-                    const rowPatientID = row.cells[0].innerText.toLowerCase();
-                    const rowDate = row.cells[1].innerText;
-        
-                    if ((patientID === '' || rowPatientID.includes(patientID)) &&
-                        (date === '' || rowDate === date)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            }
-        </script>
-    </div>
 </body>
 </html>

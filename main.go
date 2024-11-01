@@ -33,14 +33,24 @@ type Users struct {
 	Password string
 }
 
+type Medication_Orders struct {
+	File_Number      int64
+	Nurse_Name       string
+	Ward             string
+	Bed              string
+	Medication       string
+	UOM              string
+	Request_time     time.Time
+	Nurse_Remarks    string
+	Status           string
+	PHARMACY_REMARKS string
+}
+
 func loginPage(w http.ResponseWriter, r *http.Request) {
 	//session, _ := store.Get(r, "session")
-	if r.Method == http.MethodGet {
-		templates.ExecuteTemplate(w, "login.html", nil)
-		return
-	}
-
+	templates.ExecuteTemplate(w, "login.html", nil)
 }
+
 func authenticate(username, password string) (bool, error) {
 	var hashedPassword string
 
@@ -81,11 +91,6 @@ func authenticate(username, password string) (bool, error) {
 // Handle login POST request
 func login(w http.ResponseWriter, r *http.Request) {
 
-	// if err := r.ParseForm(); err != nil {
-	// 	http.Error(w, "Unable to process form", http.StatusBadRequest)
-	// 	return
-	// }
-
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
@@ -104,18 +109,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Invalid username or password.")
 
 	}
-}
-
-// Dashboard handler
-func dashboardHandler(w http.ResponseWriter, r *http.Request) {
-	// session, _ := store.Get(r, "session")
-
-	// if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-	// 	http.Error(w, "Forbidden", http.StatusForbidden)
-	// 	return
-	// }
-
-	templates.ExecuteTemplate(w, "dashboard.html", nil)
 }
 
 // Logout handler
@@ -161,8 +154,7 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	defer DB.Close()
-	templates.ExecuteTemplate(w, "dashboard.html", nil)
-	//http.Redirect(w, r, "/Order", http.StatusSeeOther)
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
 func TrackOrderHandler(w http.ResponseWriter, r *http.Request) {
@@ -198,16 +190,58 @@ func userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 	}
+}
+
+func (m Medication_Orders) FormatDate() string {
+	if m.Request_time.IsZero() {
+		return ""
+	}
+	return m.Request_time.Format("2006-01-02 15:04") // Adjust format as needed
+}
+
+// FOR DISPLAYING DATA IN DASHBOARD FOR NURSE
+func displayhandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("templates/dashboard.html"))
+	DB, err := sql.Open("sqlite3", "./DB.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rows, err := DB.Query("SELECT File_number,Nurse_name,Ward,Bed,Request_time,Status FROM MEDICATION_ORDERS WHERE STATUS = 'PENDING'")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	defer rows.Close()
+
+	MEDICATION_ORDER := []Medication_Orders{}
+
+	for rows.Next() {
+		var Medication_Orders Medication_Orders
+		if err := rows.Scan(&Medication_Orders.File_Number, &Medication_Orders.Nurse_Name, &Medication_Orders.Ward, &Medication_Orders.Bed, &Medication_Orders.Request_time, &Medication_Orders.Status); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Orders)
+
+	}
+	//templates.ExecuteTemplate(w, "dashboard.html", MEDICATION_ORDER)
+	if err := tmpl.Execute(w, MEDICATION_ORDER); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func format(s string) {
+	panic("unimplemented")
 }
 
 func main() {
 	const port = "8080"
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("/", loginPage)  //.Methods("GET")
 	mux.HandleFunc("/login", login) //.Methods("POST")
-	mux.HandleFunc("/dashboard", dashboardHandler)
+	mux.HandleFunc("/dashboard", displayhandler)
 	mux.HandleFunc("/logout", logoutHandler)
 	mux.HandleFunc("/Order", OrderHandler)
 	mux.HandleFunc("/Submit", SubmitHandler)
