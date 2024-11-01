@@ -1,4 +1,4 @@
-		<html>
+<html>
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,14 +59,27 @@
 		<body>
 			<div class="container">
 				<h1>Logon</h1>
-				<form method="POST" action="/login">
+				<form action="/login" method="POST">
 					<label for="username">Username:</label>
 					<input type="text" id="username" name="username" required>
-					<br>
-					<label for="password">Password:</label>
-					<input type="password" id="password" name="password" required>
-					<br>
+					<br></br>
+					Password: <input type="password" value="password"  name="password" id="password" required><br><br>
+					<!-- <input type="checkbox" onclick="myFunction()">Show Password
+
+						<script>
+						function myFunction() {
+						var x = document.getElementById("password");
+						if (x.type === "password") {
+							x.type = "password";
+						} else {
+							x.type = "password";
+						}
+						}
+						</script> -->
+
+
 					<button type="submit">Login</button>
+					
 				</form>
 		</body>
 		</html>
