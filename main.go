@@ -194,13 +194,6 @@ func userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m Medication_Orders) FormatDate() string {
-	if m.Request_time.IsZero() {
-		return ""
-	}
-	return m.Request_time.Format("2006-01-02 15:04") // Adjust format as needed
-}
-
 // FOR DISPLAYING DATA IN DASHBOARD FOR NURSE
 func displayhandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("templates/dashboard.html"))
