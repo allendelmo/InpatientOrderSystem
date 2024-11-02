@@ -1,3 +1,9 @@
 # Built files
 inpatient-order-system.exe
 inpatient-order-system
+
+# sqlc generated folder
+sqlc
+
+# idk
+tmp

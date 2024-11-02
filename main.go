@@ -1,11 +1,15 @@
 package main
 
 import (
+	"ImpatientOrderSystem/sqlc"
+	"context"
 	"database/sql"
+	_ "embed"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	//"github.com/birddevelper/gomologin"
@@ -23,6 +27,9 @@ var (
 // Template cache
 var templates = template.Must(template.ParseGlob("templates/*.html"))
 var DB *sql.DB
+
+//go:embed schema.sql
+var ddl string
 
 //Dummy user for authentication
 //var username = "admin"
@@ -137,17 +144,29 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	if r.Method == "POST" {
-		File_Number := r.FormValue("File_Number")
-		Nurse_Name := r.FormValue("Nurse_Name")
-		Ward := r.FormValue("Ward")
-		Bed := r.FormValue("Bed")
-		Medication := r.FormValue("Medication")
-		Status := "PENDING"
-		UOM := r.FormValue("UOM")
-		Request_time := time.Now()
-		Nurse_Remarks := r.FormValue("Nurse_Remarks")
 
-		_, err := DB.Exec("INSERT INTO Medication_Orders (FILE_NUMBER,NURSE_NAME,WARD,BED,MEDICATION,UOM,REQUEST_TIME,NURSE_REMARKS,STATUS,PHARMACY_REMARKS) VALUES (?,?,?,?,?,?,?,?,?,?)", File_Number, Nurse_Name, Ward, Bed, Medication, UOM, Request_time.Format(time.ANSIC), Nurse_Remarks, Status, nil)
+		fileNumberInt, err := strconv.Atoi(r.FormValue("File_Number"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		createMedicationOrderParams := sqlc.CreateMedicationOrderParams{
+			FileNumber:      int64(fileNumberInt),
+			NurseName:       sql.NullString{String: r.FormValue("Nurse_Name"), Valid: true},
+			Ward:            sql.NullString{String: r.FormValue("Ward"), Valid: true},
+			Bed:             sql.NullString{String: r.FormValue("Bed"), Valid: true},
+			Medication:      sql.NullString{String: r.FormValue("Medication"), Valid: true},
+			Uom:             sql.NullString{String: r.FormValue("UOM"), Valid: true},
+			NurseRemarks:    sql.NullString{String: r.FormValue("Nurse_Remarks"), Valid: true},
+			PharmacyRemarks: sql.NullString{},
+			RequestTime:     time.Now(),
+			Status:          "PENDING",
+		}
+
+		queries := sqlc.New(DB)
+		err = queries.CreateMedicationOrder(context.Background(), createMedicationOrderParams)
+		// _, err := DB.Exec("INSERT INTO Medication_Orders (FILE_NUMBER,NURSE_NAME,WARD,BED,MEDICATION,UOM,REQUEST_TIME,NURSE_REMARKS,STATUS,PHARMACY_REMARKS) VALUES (?,?,?,?,?,?,?,?,?,?)", File_Number, Nurse_Name, Ward, Bed, Medication, UOM, Request_time.Format(time.ANSIC), Nurse_Remarks, Status, nil)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -202,26 +221,63 @@ func displayhandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	rows, err := DB.Query("SELECT File_number,Nurse_name,Ward,Bed,Request_time,Status FROM MEDICATION_ORDERS WHERE STATUS = 'PENDING'")
+	queries := sqlc.New(DB)
+
+	rows, err := queries.GetMedicationOrderList(context.Background())
+	// rows, err := DB.Query("SELECT File_number,Nurse_name,Ward,Bed,Request_time,Status FROM MEDICATION_ORDERS WHERE STATUS = 'PENDING'")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	defer rows.Close()
+	// defer rows.Close()
 
 	MEDICATION_ORDER := []Medication_Orders{}
 
-	for rows.Next() {
-		var Medication_Orders Medication_Orders
-		if err := rows.Scan(&Medication_Orders.File_Number, &Medication_Orders.Nurse_Name, &Medication_Orders.Ward, &Medication_Orders.Bed, &Medication_Orders.Request_time, &Medication_Orders.Status); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Orders)
-
+	// transform from []sqlc.GetMedicationOrderListRow to []Medication_Orders
+	for _, row := range rows {
+		MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Orders{
+			File_Number:      row.FileNumber,
+			Nurse_Name:       row.NurseName.String,
+			Ward:             row.Ward.String,
+			Bed:              row.Bed.String,
+			Medication:       "",
+			UOM:              "",
+			Request_time:     row.RequestTime,
+			Nurse_Remarks:    "",
+			Status:           row.Status,
+			PHARMACY_REMARKS: "",
+		})
 	}
+
+	// for rows.Next() {
+	// 	var Medication_Orders Medication_Orders
+	// 	if err := rows.Scan(&Medication_Orders.File_Number, &Medication_Orders.Nurse_Name, &Medication_Orders.Ward, &Medication_Orders.Bed, &Medication_Orders.Request_time, &Medication_Orders.Status); err != nil {
+	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// 	MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Orders)
+
+	// }
 	//templates.ExecuteTemplate(w, "dashboard.html", MEDICATION_ORDER)
 	if err := tmpl.Execute(w, MEDICATION_ORDER); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func initDB() {
+	ctx := context.Background()
+
+	var err error
+	DB, err = sql.Open("sqlite3", "./DB.db") // Open a connection to the SQlite database file named Todos.db
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create tables from schema
+	if _, err := DB.ExecContext(ctx, ddl); err != nil {
+		// TODO: fix this later
+		// TODO: check error if already exists continue
+		fmt.Printf("Error creating table: %q: %s\n", err, ddl)
+		// log.Fatalf("Error creating table: %q: %s\n", err, ddl)
 	}
 }
 
@@ -244,6 +300,8 @@ func main() {
 		Addr:    ":" + port,
 		Handler: mux,
 	}
+
+	initDB()
 
 	fmt.Println("Server started at :", port)
 	log.Fatal(server.ListenAndServe())
