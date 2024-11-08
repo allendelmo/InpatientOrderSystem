@@ -15,15 +15,21 @@ INSERT INTO
 VALUES
     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
+
+
 -- name: GetMedicationOrderList :many
 SELECT
-    file_number,
-    nurse_name,
-    ward,
-    bed,
-    request_time,
-    status
+    *
 FROM
     medication_orders
 WHERE
-    STATUS = 'PENDING'
+    STATUS = 'PENDING';
+
+
+-- name: GetReadytoCollect :many
+SELECT
+    *
+FROM
+    medication_orders
+WHERE
+    STATUS = 'READY TO COLLECT';

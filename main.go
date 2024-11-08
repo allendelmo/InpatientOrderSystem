@@ -239,15 +239,14 @@ func displayhandler(w http.ResponseWriter, r *http.Request) {
 			Nurse_Name:       row.NurseName.String,
 			Ward:             row.Ward.String,
 			Bed:              row.Bed.String,
-			Medication:       "",
-			UOM:              "",
-			Request_time:     row.RequestTime,
-			Nurse_Remarks:    "",
+			Medication:       row.Medication.String,
+			UOM:              row.Uom.String,
+			Request_time:     row.RequestTime.Round(2),
+			Nurse_Remarks:    row.NurseRemarks.String,
 			Status:           row.Status,
 			PHARMACY_REMARKS: "",
 		})
 	}
-
 	// for rows.Next() {
 	// 	var Medication_Orders Medication_Orders
 	// 	if err := rows.Scan(&Medication_Orders.File_Number, &Medication_Orders.Nurse_Name, &Medication_Orders.Ward, &Medication_Orders.Bed, &Medication_Orders.Request_time, &Medication_Orders.Status); err != nil {
@@ -261,6 +260,40 @@ func displayhandler(w http.ResponseWriter, r *http.Request) {
 	if err := tmpl.Execute(w, MEDICATION_ORDER); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func CollectHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("templates/collect.html"))
+
+	queries := sqlc.New(DB)
+
+	rows, err := queries.GetReadytoCollect(context.Background())
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	MEDICATION_ORDER := []Medication_Orders{}
+
+	for _, row := range rows {
+		MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Orders{
+			File_Number:      row.FileNumber,
+			Nurse_Name:       row.NurseName.String,
+			Ward:             row.Ward.String,
+			Bed:              row.Bed.String,
+			Medication:       row.Medication.String,
+			UOM:              row.Uom.String,
+			Request_time:     row.RequestTime.Round(2),
+			Nurse_Remarks:    row.NurseRemarks.String,
+			Status:           row.Status,
+			PHARMACY_REMARKS: "",
+		})
+	}
+
+	if err := tmpl.Execute(w, MEDICATION_ORDER); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
 }
 
 func initDB() {
@@ -293,6 +326,7 @@ func main() {
 	mux.HandleFunc("/TrackOrder", TrackOrderHandler)
 	mux.HandleFunc("/register", userRegisterHandler)
 	mux.HandleFunc("/reg", RegisterHandler)
+	mux.HandleFunc("/collect", CollectHandler)
 	//http.HandleFunc("/authenticate", authenticate)
 
 	// server config

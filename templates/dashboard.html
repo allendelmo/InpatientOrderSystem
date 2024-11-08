@@ -103,11 +103,6 @@
             align-items: center;
         }
         
-        .user-section span {
-            margin-right: 15px;
-            color: #2c3e50;
-            font-size: 18px;
-        }
         
         .user-section a {
             margin-left: 10px;
@@ -117,9 +112,6 @@
             transition: color 0.3s ease;
         }
         
-        .user-section a:hover {
-            color: #e74c3c;
-        }
         .popup {
             display: none;
             position: fixed;
@@ -134,7 +126,7 @@
         }
 
         .popup table {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .popup-buttons {
@@ -177,7 +169,7 @@
     <div class="sidebar">
         <h2>Inpatient Order System</h2>
         <a href="/Order">Request an Order</a>
-        <!-- <a href="/TrackOrder">Track Orders</a> -->
+        <a href="/collect">Ready to Collect</a>
         <a href="/nhistory">History</a>
         <a href="/reg">Register</a>
         <a href="/logout">Logout</a>
@@ -186,30 +178,129 @@
         <!-- Dashboard Content -->
         <div id="dashboard-content">
             <h1>Order Monitoring</h1>
-            <p>Track Orders here: </p>
+            <p>Track Orders here:</p>
             <table>
-                <thead>
-                    <tr >
+                    <tr>
                         <th>Patient ID</th>
                         <th>Nurse Name</th>
                         <th>Ward</th>
                         <th>Bed No.</th>
                         <th>Date of Request</th>
+                        <!-- <th>Nurse Remarks</th> -->
                         <th>Status</th>
                     </tr>
-                </thead>
-                <tbody>
                     {{range .}}
-                    <tr>
+                    <tr data-patient-id="{{.File_Number}}" data-nurse-name="{{.Nurse_Name}}" data-ward="{{.Ward}}" data-bed-no="{{.Bed}}" data-date-request="{{.Request_time}}" data-status="{{.Status}}" medication="{{.Medication}}" uom="{{.UOM}}" nurse-remarks="{{.Nurse_Remarks}}">
                         <td>{{.File_Number}}</td>
                         <td>{{.Nurse_Name}}</td>
                         <td>{{.Ward}}</td>
                         <td>{{.Bed}}</td>
                         <td>{{.Request_time}}</td>
+                        <!-- <td>{{.Nurse_Remarks}}</td> -->
                         <td>{{.Status}}</td>
                     </tr>
                         {{ end }}
-                </tbody>
             </table>
+
+
+            <!-- Modal structure -->
+            <div id="popupModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border:1px solid #333; box-shadow:0 4px 8px rgba(0,0,0,0.3);">
+                <span id="closeModal" style="cursor:pointer; float:right;">&times;</span>
+                <h3>Patient Details</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Nurse Name</th>
+                            <th>Ward</th>
+                            <th>Bed No.</th>
+                            <th>Date of Request</th>
+                            <th>Nurse Remarks</th>
+                            <th>Medication</th>
+                            <th>UOM</th>
+                            <th>Status</th>
+                            <th>Dispense</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalTableBody">
+                       
+                    </tbody>
+                </table>
+                <div class="popup-buttons">
+                    <button onclick="" onclick="confirm('Are you sure you want to send the order?')">Dispense Selected</button>
+                </div>
+            </div>
+            
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const rows = document.querySelectorAll(".content table tr");
+            
+                    rows.forEach(row => {
+                        row.addEventListener("click", function() {
+                            const selectedPatientId = this.getAttribute("data-patient-id");
+            
+                            // Clear previous content in the modal
+                            const modalTableBody = document.getElementById("modalTableBody");
+                            modalTableBody.innerHTML = "";
+            
+                            // Gather all rows with the same patient ID
+                            rows.forEach(row => {
+                                if (row.getAttribute("data-patient-id") === selectedPatientId) {
+                                    const patientId = row.getAttribute("data-patient-id");
+                                    const nurseName = row.getAttribute("data-nurse-name");
+                                    const ward = row.getAttribute("data-ward");
+                                    const bedNo = row.getAttribute("data-bed-no");
+                                    const dateRequest = row.getAttribute("data-date-request");
+                                    const nurseRemarks = row.getAttribute("nurse-remarks");
+                                    const medication = row.getAttribute("medication");
+                                    const UOM = row.getAttribute("uom");
+                                    const status = row.getAttribute("data-status");
+            
+                                    // Create a new row with data
+                                    const newRow = document.createElement("tr");
+                                    newRow.innerHTML = `
+                                        <td>${patientId}</td>
+                                        <td>${nurseName}</td>
+                                        <td>${ward}</td>
+                                        <td>${bedNo}</td>
+                                        <td>${dateRequest}</td>
+                                        <td>${nurseRemarks}</td>
+                                        <td>${medication}</td>
+                                        <td>${UOM}</td>
+                                        <td>${status}</td>
+                                        <td><input type="checkbox"></td>
+                                    `;
+                                    modalTableBody.appendChild(newRow);
+                                }
+                            });
+            
+                            // Show the modal
+                            document.getElementById("popupModal").style.display = "block";
+                        });
+                    });
+                    
+                    function dispense(){
+                        
+                    }
+                    // Close the modal when clicking the close button
+                    document.getElementById("closeModal").addEventListener("click", function() {
+                        document.getElementById("popupModal").style.display = "none";
+                    });
+            
+                    // Close the modal when clicking outside of it
+                    window.addEventListener("click", function(event) {
+                        const modal = document.getElementById("popupModal");
+                        if (event.target == modal) {
+                            modal.style.display = "none";
+                        }
+                    });
+            
+                    // Prevent closing when clicking inside the modal content
+                    document.getElementById("popupModal").addEventListener("click", function(event) {
+                        event.stopPropagation();
+                    });
+                });
+            </script>
+            
 </body>
 </html>
