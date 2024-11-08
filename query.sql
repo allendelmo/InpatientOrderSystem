@@ -1,6 +1,5 @@
 -- name: CreateMedicationOrder :exec
-INSERT INTO
-    medication_orders (
+INSERT INTO medication_orders (
         file_number,
         nurse_name,
         ward,
@@ -12,24 +11,12 @@ INSERT INTO
         status,
         pharmacy_remarks
     )
-VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-
-
-
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 -- name: GetMedicationOrderList :many
-SELECT
-    *
-FROM
-    medication_orders
-WHERE
-    STATUS = 'PENDING';
-
-
+SELECT *
+FROM medication_orders
+WHERE STATUS = 'PENDING';
 -- name: GetReadytoCollect :many
-SELECT
-    *
-FROM
-    medication_orders
-WHERE
-    STATUS = 'READY TO COLLECT';
+SELECT *
+FROM medication_orders
+WHERE STATUS = 'READY TO COLLECT';

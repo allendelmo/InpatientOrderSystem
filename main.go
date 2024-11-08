@@ -230,11 +230,11 @@ func displayhandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// defer rows.Close()
 
-	MEDICATION_ORDER := []Medication_Orders{}
+	medicationOrders := []Medication_Orders{}
 
 	// transform from []sqlc.GetMedicationOrderListRow to []Medication_Orders
 	for _, row := range rows {
-		MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Orders{
+		medicationOrders = append(medicationOrders, Medication_Orders{
 			File_Number:      row.FileNumber,
 			Nurse_Name:       row.NurseName.String,
 			Ward:             row.Ward.String,
@@ -257,7 +257,7 @@ func displayhandler(w http.ResponseWriter, r *http.Request) {
 
 	// }
 	//templates.ExecuteTemplate(w, "dashboard.html", MEDICATION_ORDER)
-	if err := tmpl.Execute(w, MEDICATION_ORDER); err != nil {
+	if err := tmpl.Execute(w, medicationOrders); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

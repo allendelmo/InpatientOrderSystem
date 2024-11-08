@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,11 +16,14 @@
             margin-top: 20px;
         }
 
-        table, th, td {
+        table,
+        th,
+        td {
             border: 1px solid #ddd;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             text-align: left;
         }
@@ -28,7 +32,9 @@
             background-color: #f1f1f1;
             cursor: pointer;
         }
-        body, html {
+
+        body,
+        html {
             margin: 0;
             padding: 0;
             height: 100%;
@@ -36,7 +42,7 @@
             display: flex;
             background-color: #f4f4f9;
         }
-        
+
         .sidebar {
             width: 250px;
             height: 100vh;
@@ -47,14 +53,14 @@
             position: fixed;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
-        
+
         .sidebar h2 {
             text-align: center;
             padding: 20px;
             font-size: 24px;
             border-bottom: 1px solid #444;
         }
-        
+
         .sidebar a {
             color: #bdc3c7;
             padding: 15px 20px;
@@ -63,18 +69,18 @@
             font-size: 18px;
             transition: background 0.3s ease, color 0.3s ease;
         }
-        
+
         .sidebar a:hover {
             background-color: #34495e;
             color: #ecf0f1;
         }
-        
+
         .content {
             margin-left: 250px;
             padding: 20px;
             width: calc(100% - 250px);
         }
-        
+
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -85,7 +91,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-        
+
         .navbar div a {
             margin-right: 15px;
             text-decoration: none;
@@ -93,17 +99,17 @@
             font-size: 18px;
             transition: color 0.3s ease;
         }
-        
+
         .navbar div a:hover {
             color: #2980b9;
         }
-        
+
         .user-section {
             display: flex;
             align-items: center;
         }
-        
-        
+
+
         .user-section a {
             margin-left: 10px;
             text-decoration: none;
@@ -111,7 +117,7 @@
             font-size: 18px;
             transition: color 0.3s ease;
         }
-        
+
         .popup {
             display: none;
             position: fixed;
@@ -165,6 +171,7 @@
         }
     </style>
 </head>
+
 <body class="layout">
     <div class="sidebar">
         <h2>Inpatient Order System</h2>
@@ -180,31 +187,24 @@
             <h1>Order Monitoring</h1>
             <p>Track Orders here:</p>
             <table>
-                    <tr>
-                        <th>Patient ID</th>
-                        <th>Nurse Name</th>
-                        <th>Ward</th>
-                        <th>Bed No.</th>
-                        <th>Date of Request</th>
-                        <!-- <th>Nurse Remarks</th> -->
-                        <th>Status</th>
-                    </tr>
-                    {{range .}}
-                    <tr data-patient-id="{{.File_Number}}" data-nurse-name="{{.Nurse_Name}}" data-ward="{{.Ward}}" data-bed-no="{{.Bed}}" data-date-request="{{.Request_time}}" data-status="{{.Status}}" medication="{{.Medication}}" uom="{{.UOM}}" nurse-remarks="{{.Nurse_Remarks}}">
-                        <td>{{.File_Number}}</td>
-                        <td>{{.Nurse_Name}}</td>
-                        <td>{{.Ward}}</td>
-                        <td>{{.Bed}}</td>
-                        <td>{{.Request_time}}</td>
-                        <!-- <td>{{.Nurse_Remarks}}</td> -->
-                        <td>{{.Status}}</td>
-                    </tr>
-                        {{ end }}
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Nurse Name</th>
+                    <th>Ward</th>
+                    <th>Bed No.</th>
+                    <!-- <th>Date of Request</th> -->
+                    <!-- <th>Nurse Remarks</th> -->
+                    <th>Status</th>
+                </tr>
+                <tbody id="medicationOrdersTable">
+
+                </tbody>
             </table>
 
 
             <!-- Modal structure -->
-            <div id="popupModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border:1px solid #333; box-shadow:0 4px 8px rgba(0,0,0,0.3);">
+            <div id="popupModal"
+                style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border:1px solid #333; box-shadow:0 4px 8px rgba(0,0,0,0.3);">
                 <span id="closeModal" style="cursor:pointer; float:right;">&times;</span>
                 <h3>Patient Details</h3>
                 <table>
@@ -223,26 +223,69 @@
                         </tr>
                     </thead>
                     <tbody id="modalTableBody">
-                       
+
                     </tbody>
                 </table>
                 <div class="popup-buttons">
-                    <button onclick="" onclick="confirm('Are you sure you want to send the order?')">Dispense Selected</button>
+                    <button onclick="" onclick="confirm('Are you sure you want to send the order?')">Dispense
+                        Selected</button>
                 </div>
             </div>
-            
+
             <script>
-                document.addEventListener("DOMContentLoaded", function() {
+                const medicationOrderList = {{.}}
+                console.log("medicationOrderList: ", medicationOrderList);
+
+                // get set of ids
+                const fileNumberSet = new Set(medicationOrderList.map(x => x.File_Number))
+                console.log("fileNumberSet: ", fileNumberSet);
+
+                const groupedMedicationOrderList = medicationOrderList.reduce((acc, curr) => {
+                    if (fileNumberSet.has(curr.File_Number)) {
+                        acc.push(curr)
+                        fileNumberSet.delete(curr.File_Number)
+                        return acc
+                    }
+
+                    return acc
+                }, [])
+                console.log("groupedMedicationOrderList: ", groupedMedicationOrderList)
+
+                groupedMedicationOrderList.forEach((row) => {
+                    const patientId = row.File_Number
+                    const nurseName = row.Nurse_Name
+                    const ward = row.Ward
+                    const bedNo = row.Bed
+                    const status = row.Status
+
+                    // Create a new row with data
+                    const newRow = document.createElement("tr");
+                    newRow.innerHTML = `
+                                        <td>${patientId}</td>
+                                        <td>${nurseName}</td>
+                                        <td>${ward}</td>
+                                        <td>${bedNo}</td>
+                                        <td>${status}</td>
+                                    `;
+                    medicationOrdersTable.appendChild(newRow);
+                })
+
+
+                const medicationOrdersTableBody = document.getElementById("medicationOrdersTable")
+
+                document.addEventListener("DOMContentLoaded", function () {
+
+
                     const rows = document.querySelectorAll(".content table tr");
-            
+
                     rows.forEach(row => {
-                        row.addEventListener("click", function() {
+                        row.addEventListener("click", function () {
                             const selectedPatientId = this.getAttribute("data-patient-id");
-            
+
                             // Clear previous content in the modal
                             const modalTableBody = document.getElementById("modalTableBody");
                             modalTableBody.innerHTML = "";
-            
+
                             // Gather all rows with the same patient ID
                             rows.forEach(row => {
                                 if (row.getAttribute("data-patient-id") === selectedPatientId) {
@@ -255,7 +298,7 @@
                                     const medication = row.getAttribute("medication");
                                     const UOM = row.getAttribute("uom");
                                     const status = row.getAttribute("data-status");
-            
+
                                     // Create a new row with data
                                     const newRow = document.createElement("tr");
                                     newRow.innerHTML = `
@@ -273,34 +316,35 @@
                                     modalTableBody.appendChild(newRow);
                                 }
                             });
-            
+
                             // Show the modal
                             document.getElementById("popupModal").style.display = "block";
                         });
                     });
-                    
-                    function dispense(){
-                        
+
+                    function dispense() {
+
                     }
                     // Close the modal when clicking the close button
-                    document.getElementById("closeModal").addEventListener("click", function() {
+                    document.getElementById("closeModal").addEventListener("click", function () {
                         document.getElementById("popupModal").style.display = "none";
                     });
-            
+
                     // Close the modal when clicking outside of it
-                    window.addEventListener("click", function(event) {
+                    window.addEventListener("click", function (event) {
                         const modal = document.getElementById("popupModal");
                         if (event.target == modal) {
                             modal.style.display = "none";
                         }
                     });
-            
+
                     // Prevent closing when clicking inside the modal content
-                    document.getElementById("popupModal").addEventListener("click", function(event) {
+                    document.getElementById("popupModal").addEventListener("click", function (event) {
                         event.stopPropagation();
                     });
                 });
             </script>
-            
+
 </body>
+
 </html>
