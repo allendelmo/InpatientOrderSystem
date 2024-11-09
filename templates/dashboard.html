@@ -196,8 +196,8 @@
                     <!-- <th>Nurse Remarks</th> -->
                     <th>Status</th>
                 </tr>
-                <tbody id="medicationOrdersTable">
-
+                <tbody class="medicationOrdersTable"id="medicationOrdersTable">
+                        
                 </tbody>
             </table>
 
@@ -260,6 +260,7 @@
 
                     // Create a new row with data
                     const newRow = document.createElement("tr");
+                    newRow.setAttribute("patientId",patientId)
                     newRow.innerHTML = `
                                         <td>${patientId}</td>
                                         <td>${nurseName}</td>
@@ -276,28 +277,30 @@
                 document.addEventListener("DOMContentLoaded", function () {
 
 
-                    const rows = document.querySelectorAll(".content table tr");
+                    const rows = document.querySelectorAll(".medicationOrdersTable tr");
 
                     rows.forEach(row => {
                         row.addEventListener("click", function () {
-                            const selectedPatientId = this.getAttribute("data-patient-id");
-
+                            const selectedPatientId = this.getAttribute("patientId");
+                            console.log("asdas", selectedPatientId)
+                            
                             // Clear previous content in the modal
                             const modalTableBody = document.getElementById("modalTableBody");
                             modalTableBody.innerHTML = "";
 
                             // Gather all rows with the same patient ID
-                            rows.forEach(row => {
-                                if (row.getAttribute("data-patient-id") === selectedPatientId) {
-                                    const patientId = row.getAttribute("data-patient-id");
-                                    const nurseName = row.getAttribute("data-nurse-name");
-                                    const ward = row.getAttribute("data-ward");
-                                    const bedNo = row.getAttribute("data-bed-no");
-                                    const dateRequest = row.getAttribute("data-date-request");
-                                    const nurseRemarks = row.getAttribute("nurse-remarks");
-                                    const medication = row.getAttribute("medication");
-                                    const UOM = row.getAttribute("uom");
-                                    const status = row.getAttribute("data-status");
+                            medicationOrderList.filter(x => x.File_Number == selectedPatientId).forEach(row => {
+                                //if (row.getAttribute("patientId") === selectedPatientId) {
+                                console.log(row)
+                                    const patientId = row.File_Number;
+                                    const nurseName = row.Nurse_Name;
+                                    const ward = row.Ward;
+                                    const bedNo = row.Bed;
+                                    const dateRequest = row.Request_time;
+                                    const nurseRemarks = row.Nurse_Remarks;
+                                    const medication = row.Medication;
+                                    const UOM = row.UOM;
+                                    const status = row.Status;
 
                                     // Create a new row with data
                                     const newRow = document.createElement("tr");
@@ -314,17 +317,20 @@
                                         <td><input type="checkbox"></td>
                                     `;
                                     modalTableBody.appendChild(newRow);
-                                }
+                                //}
                             });
 
                             // Show the modal
                             document.getElementById("popupModal").style.display = "block";
                         });
                     });
-
+                    
+                    //dispense button
                     function dispense() {
 
                     }
+
+
                     // Close the modal when clicking the close button
                     document.getElementById("closeModal").addEventListener("click", function () {
                         document.getElementById("popupModal").style.display = "none";
@@ -339,7 +345,7 @@
                     });
 
                     // Prevent closing when clicking inside the modal content
-                    document.getElementById("popupModal").addEventListener("click", function (event) {
+                    document.getElementById("modalTableBody").addEventListener("click", function (event) {
                         event.stopPropagation();
                     });
                 });
