@@ -47,6 +47,11 @@ func main() {
 	mux.HandleFunc("/logout", logoutHandler)
 	mux.HandleFunc("/register", cfg.userRegisterHandler)
 	mux.HandleFunc("/Submit", cfg.SubmitHandler)
+
+	mux.HandleFunc("GET /api/medication_orders", cfg.handlerMedicationOrderList)
+	mux.HandleFunc("POST /api/medication_orders", cfg.handlerMedicationOrderCreate)
+	mux.HandleFunc("POST /api/users", cfg.handlerMedicationOrderCreate)
+
 	//http.HandleFunc("/authenticate", authenticate)
 
 	// initialize server config
