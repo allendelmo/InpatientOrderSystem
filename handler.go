@@ -21,8 +21,8 @@ type Users struct {
 }
 
 type Medication_Orders struct {
-	Order_Number     int64
-	File_Number      int64
+	Order_Number     int32
+	File_Number      int32
 	Nurse_Name       string
 	Ward             string
 	Bed              string
@@ -131,7 +131,7 @@ func (cfg *config) SubmitHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		createMedicationOrderParams := database.CreateMedicationOrderParams{
-			FileNumber:      int64(fileNumberInt),
+			FileNumber:      int32(fileNumberInt),
 			NurseName:       sql.NullString{String: r.FormValue("Nurse_Name"), Valid: true},
 			Ward:            sql.NullString{String: r.FormValue("Ward"), Valid: true},
 			Bed:             sql.NullString{String: r.FormValue("Bed"), Valid: true},
