@@ -50,15 +50,15 @@ func loginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO: rework auth
-func authenticate(username, password string) (bool, error) {
+func authenticate(username, password, dbUrl string) (bool, error) {
 	var hashedPassword string
 
-	DB, err := sql.Open("sqlite3", "./DB.db")
+	DB, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// Query database for user
-	query := "SELECT password FROM users WHERE username = ?"
+	query := "SELECT password FROM users WHERE username = $1"
 	err = DB.QueryRow(query, username).Scan(&hashedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -88,13 +88,13 @@ func authenticate(username, password string) (bool, error) {
 }
 
 // Handle login POST request
-func login(w http.ResponseWriter, r *http.Request) {
+func (cfg *config) login(w http.ResponseWriter, r *http.Request) {
 
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
 	// Authenticate user
-	authenticated, err := authenticate(username, password)
+	authenticated, err := authenticate(username, password, cfg.dbUrl)
 	if err != nil {
 		http.Error(w, "Server error, unable to log in", http.StatusInternalServerError)
 		log.Printf("Login error: %v", err)
@@ -163,7 +163,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 // TODO: refactor db to use SQLC
 func (cfg *config) userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	//Hash the password before storing it in the database
-	DB, err := sql.Open("sqlite3", "./DB.db")
+	DB, err := sql.Open("postgres", cfg.dbUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -181,7 +181,7 @@ func (cfg *config) userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = DB.Exec("INSERT INTO users (username, password,ward,PERMISSION,createdat,first_name,last_name) VALUES (?,?,?,?,?,?,?)", username, hashedPassword, Ward, Permission, createdAt.Format(time.ANSIC), First_Name, Last_Name)
+		_, err = DB.Exec("INSERT INTO users (id, username, password,ward,PERMISSION,createdat,first_name,last_name) VALUES (gen_random_uuid(),$1,$2,$3,$4,$5,$6,$7)", username, hashedPassword, Ward, Permission, createdAt.Format(time.ANSIC), First_Name, Last_Name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

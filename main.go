@@ -7,21 +7,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
-	_ "github.com/mattn/go-sqlite3" // SQLite driver
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 type config struct {
 	db *database.Queries
 	// platform  string // TODO
 	// jwtSecret string // TODO
+	dbUrl string
 }
 
 func main() {
 	const port = "8080"
 
+	// get env variables
+	godotenv.Load()
+	dbUrl := os.Getenv("DB_URL")
+	if dbUrl == "" {
+		log.Fatal("Cannot get env variable DB_URL")
+	}
+
 	// initialize DB
-	db, err := sql.Open("sqlite3", "./DB.db") // Open a connection to the SQlite database file named Todos.db
+	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,7 +40,8 @@ func main() {
 
 	// initialize config
 	cfg := config{
-		db: dbQueries,
+		db:    dbQueries,
+		dbUrl: dbUrl,
 	}
 
 	// create server mux and register handlers
@@ -43,7 +54,7 @@ func main() {
 	mux.HandleFunc("/Order", OrderHandler)
 
 	// TODO: fix api handlers (use Methods: GET, POST)
-	mux.HandleFunc("/login", login)
+	mux.HandleFunc("/login", cfg.login)
 	mux.HandleFunc("/dispense", cfg.handlerDispense)
 	mux.HandleFunc("/logout", logoutHandler)
 	mux.HandleFunc("/register", cfg.userRegisterHandler)

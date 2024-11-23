@@ -4,3 +4,6 @@ inpatient-order-system
 
 # air
 tmp
+
+# env file
+.env
