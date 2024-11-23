@@ -5,15 +5,15 @@ INSERT INTO medication_orders (
         nurse_name,
         ward,
         bed,
-        quantity,
         medication,
+        quantity,
         uom,
         request_time,
         nurse_remarks,
-        STATUS,
+        status_id,
         pharmacy_remarks
     )
-VALUES (DEFAULT,$2,$3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
+VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 -- name: GetMedicationOrderList :many
 SELECT *
 FROM medication_orders
