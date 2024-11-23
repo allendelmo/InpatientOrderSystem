@@ -210,6 +210,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Order Number</th>
                             <th>Patient ID</th>
                             <th>Nurse Name</th>
                             <th>Ward</th>
@@ -222,13 +223,16 @@
                             <th>Dispense</th>
                         </tr>
                     </thead>
+                    <form action="/dispense" method="POST">
                     <tbody id="modalTableBody">
 
                     </tbody>
+              
                 </table>
                 <div class="popup-buttons">
-                    <button onclick="" onclick="confirm('Are you sure you want to send the order?')">Dispense
-                        Selected</button>
+                    <button action="submit" onclick="dispense()">Dispense Selected</button>
+                </form>
+                    <!-- onclick="confirm('Are you sure you want to send the order?')" -->
                 </div>
             </div>
 
@@ -292,6 +296,7 @@
                             medicationOrderList.filter(x => x.File_Number == selectedPatientId).forEach(row => {
                                 //if (row.getAttribute("patientId") === selectedPatientId) {
                                 console.log(row)
+                                    const orderId = row.Order_Number;
                                     const patientId = row.File_Number;
                                     const nurseName = row.Nurse_Name;
                                     const ward = row.Ward;
@@ -305,6 +310,7 @@
                                     // Create a new row with data
                                     const newRow = document.createElement("tr");
                                     newRow.innerHTML = `
+                                        <td>${orderId}</td>
                                         <td>${patientId}</td>
                                         <td>${nurseName}</td>
                                         <td>${ward}</td>
@@ -314,7 +320,7 @@
                                         <td>${medication}</td>
                                         <td>${UOM}</td>
                                         <td>${status}</td>
-                                        <td><input type="checkbox"></td>
+                                        <td><input type="checkbox" id="${orderId}"></td>
                                     `;
                                     modalTableBody.appendChild(newRow);
                                 //}
@@ -327,8 +333,23 @@
                     
                     //dispense button
                     function dispense() {
-
-                    }
+                        medicationOrderList.forEach((medication, orderId) => {
+                            const checkbox = document.getElementById(`${orderid}`);
+                            if (checkbox.checked){
+                                fetch('/dispense',{
+                                    method : 'POST',
+                                    headers: {
+                                        'Content-type': 'application/json'
+                                    },
+                                    body:JSON.stringify(orderId)
+                                })
+                                .then(response => response.JSON())
+                                .then(data => {
+                                    alert(data.message);
+                                })
+                            }
+                            }
+                )};
 
 
                     // Close the modal when clicking the close button

@@ -31,6 +31,7 @@
             <p>Track Orders here:</p>
             <table>
                     <tr>
+                        <th>Order Number</th>
                         <th>Patient ID</th>
                         <th>Nurse Name</th>
                         <th>Ward</th>
@@ -41,6 +42,7 @@
                     </tr>
                     {{range .}}
                     <tr>
+                        <td>{{.Order_Number}}</td>
                         <td>{{.File_Number}}</td>
                         <td>{{.Nurse_Name}}</td>
                         <td>{{.Ward}}</td>

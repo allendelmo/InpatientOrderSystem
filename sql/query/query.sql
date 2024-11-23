@@ -4,6 +4,7 @@ INSERT INTO medication_orders (
         nurse_name,
         ward,
         bed,
+        quantity,
         medication,
         uom,
         request_time,
@@ -11,7 +12,7 @@ INSERT INTO medication_orders (
         status,
         pharmacy_remarks
     )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 -- name: GetMedicationOrderList :many
 SELECT *
 FROM medication_orders
@@ -20,3 +21,7 @@ WHERE STATUS = 'PENDING';
 SELECT *
 FROM medication_orders
 WHERE STATUS = 'READY TO COLLECT';
+-- name: UpdateMedicationOrder :exec
+UPDATE medication_orders
+SET STATUS = 'READY TO COLLECT'
+WHERE ORDER_NUMBER = ?;

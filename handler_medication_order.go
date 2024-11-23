@@ -1,12 +1,14 @@
 package main
 
 import (
+	"ImpatientOrderSystem/internal/database"
 	"encoding/json"
 	"net/http"
 	"time"
 )
 
 type MedicationOrder struct {
+	OrderNumber     int       `json:"order_number"`
 	FileNumber      int       `json:"file_number"`
 	NurseName       string    `json:"nurse_name"`
 	Ward            string    `json:"ward"`
@@ -59,6 +61,7 @@ func (cfg *config) handlerMedicationOrderList(w http.ResponseWriter, r *http.Req
 	medicationOrderList := make([]MedicationOrder, len(medicationOrderListDB))
 	for i, medicationOrder := range medicationOrderListDB {
 		medicationOrderList[i] = MedicationOrder{
+			OrderNumber:     int(medicationOrder.OrderNumber),
 			FileNumber:      int(medicationOrder.FileNumber),
 			NurseName:       medicationOrder.NurseName.String,
 			Ward:            medicationOrder.Ward.String,
@@ -75,4 +78,17 @@ func (cfg *config) handlerMedicationOrderList(w http.ResponseWriter, r *http.Req
 	respondWithJSON(w, http.StatusOK, response{
 		Data: medicationOrderList,
 	})
+}
+
+func (cfg *config) handlerDispense(w http.ResponseWriter, r *http.Request) {
+
+	UpdateMedicationOrder := database.MedicationOrder{}
+
+	err := cfg.db.UpdateMedicationOrder(r.Context(), UpdateMedicationOrder.OrderNumber)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+
 }

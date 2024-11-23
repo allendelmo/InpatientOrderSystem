@@ -10,11 +10,13 @@ import (
 )
 
 type MedicationOrder struct {
+	OrderNumber     int64
 	FileNumber      int64
 	NurseName       sql.NullString
 	Ward            sql.NullString
 	Bed             sql.NullString
 	Medication      sql.NullString
+	Quantity        sql.NullInt64
 	Uom             sql.NullString
 	RequestTime     time.Time
 	NurseRemarks    sql.NullString

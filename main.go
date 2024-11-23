@@ -44,6 +44,7 @@ func main() {
 
 	// TODO: fix api handlers (use Methods: GET, POST)
 	mux.HandleFunc("/login", login)
+	mux.HandleFunc("/dispense", cfg.handlerDispense)
 	mux.HandleFunc("/logout", logoutHandler)
 	mux.HandleFunc("/register", cfg.userRegisterHandler)
 	mux.HandleFunc("/Submit", cfg.SubmitHandler)
@@ -51,7 +52,7 @@ func main() {
 	mux.HandleFunc("GET /api/medication_orders", cfg.handlerMedicationOrderList)
 	mux.HandleFunc("POST /api/medication_orders", cfg.handlerMedicationOrderCreate)
 	mux.HandleFunc("POST /api/users", cfg.handlerMedicationOrderCreate)
-
+	//mux.HandleFunc("POST /api/medication_orders", cfg.handlerDispense)
 	//http.HandleFunc("/authenticate", authenticate)
 
 	// initialize server config

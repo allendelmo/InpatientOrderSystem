@@ -21,6 +21,7 @@ type Users struct {
 }
 
 type Medication_Orders struct {
+	Order_Number     int64
 	File_Number      int64
 	Nurse_Name       string
 	Ward             string
@@ -111,10 +112,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 // Logout handler
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session")
-	session.Values["authenticated"] = false
-	session.Save(r, w)
-	http.Redirect(w, r, "/", http.StatusFound)
+	fmt.Fprintf(w, "Successfully logged out!")
 }
 
 // Order Handler
@@ -192,7 +190,7 @@ func (cfg *config) userRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// FOR DISPLAYING DATA IN DASHBOARD FOR NURSE
+// FOR DISPLAYING DATA IN DASHBOARD FOR ALL
 func (cfg *config) displayhandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("templates/dashboard.html"))
 
@@ -206,6 +204,7 @@ func (cfg *config) displayhandler(w http.ResponseWriter, r *http.Request) {
 	// transform from []sqlc.GetMedicationOrderListRow to []Medication_Orders
 	for _, row := range rows {
 		medicationOrders = append(medicationOrders, Medication_Orders{
+			Order_Number:     row.OrderNumber,
 			File_Number:      row.FileNumber,
 			Nurse_Name:       row.NurseName.String,
 			Ward:             row.Ward.String,
@@ -236,13 +235,14 @@ func (cfg *config) CollectHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, row := range rows {
 		MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Orders{
+			Order_Number:     row.OrderNumber,
 			File_Number:      row.FileNumber,
 			Nurse_Name:       row.NurseName.String,
 			Ward:             row.Ward.String,
 			Bed:              row.Bed.String,
 			Medication:       row.Medication.String,
 			UOM:              row.Uom.String,
-			Request_time:     row.RequestTime.Round(2),
+			Request_time:     row.RequestTime,
 			Nurse_Remarks:    row.NurseRemarks.String,
 			Status:           row.Status,
 			PHARMACY_REMARKS: "",

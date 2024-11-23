@@ -17,6 +17,7 @@ INSERT INTO medication_orders (
         nurse_name,
         ward,
         bed,
+        quantity,
         medication,
         uom,
         request_time,
@@ -24,7 +25,7 @@ INSERT INTO medication_orders (
         status,
         pharmacy_remarks
     )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateMedicationOrderParams struct {
@@ -32,6 +33,7 @@ type CreateMedicationOrderParams struct {
 	NurseName       sql.NullString
 	Ward            sql.NullString
 	Bed             sql.NullString
+	Quantity        sql.NullInt64
 	Medication      sql.NullString
 	Uom             sql.NullString
 	RequestTime     time.Time
@@ -46,6 +48,7 @@ func (q *Queries) CreateMedicationOrder(ctx context.Context, arg CreateMedicatio
 		arg.NurseName,
 		arg.Ward,
 		arg.Bed,
+		arg.Quantity,
 		arg.Medication,
 		arg.Uom,
 		arg.RequestTime,
@@ -57,7 +60,7 @@ func (q *Queries) CreateMedicationOrder(ctx context.Context, arg CreateMedicatio
 }
 
 const getMedicationOrderList = `-- name: GetMedicationOrderList :many
-SELECT file_number, nurse_name, ward, bed, medication, uom, request_time, nurse_remarks, status, pharmacy_remarks
+SELECT order_number, file_number, nurse_name, ward, bed, medication, quantity, uom, request_time, nurse_remarks, status, pharmacy_remarks
 FROM medication_orders
 WHERE STATUS = 'PENDING'
 `
@@ -72,11 +75,13 @@ func (q *Queries) GetMedicationOrderList(ctx context.Context) ([]MedicationOrder
 	for rows.Next() {
 		var i MedicationOrder
 		if err := rows.Scan(
+			&i.OrderNumber,
 			&i.FileNumber,
 			&i.NurseName,
 			&i.Ward,
 			&i.Bed,
 			&i.Medication,
+			&i.Quantity,
 			&i.Uom,
 			&i.RequestTime,
 			&i.NurseRemarks,
@@ -97,7 +102,7 @@ func (q *Queries) GetMedicationOrderList(ctx context.Context) ([]MedicationOrder
 }
 
 const getReadytoCollect = `-- name: GetReadytoCollect :many
-SELECT file_number, nurse_name, ward, bed, medication, uom, request_time, nurse_remarks, status, pharmacy_remarks
+SELECT order_number, file_number, nurse_name, ward, bed, medication, quantity, uom, request_time, nurse_remarks, status, pharmacy_remarks
 FROM medication_orders
 WHERE STATUS = 'READY TO COLLECT'
 `
@@ -112,11 +117,13 @@ func (q *Queries) GetReadytoCollect(ctx context.Context) ([]MedicationOrder, err
 	for rows.Next() {
 		var i MedicationOrder
 		if err := rows.Scan(
+			&i.OrderNumber,
 			&i.FileNumber,
 			&i.NurseName,
 			&i.Ward,
 			&i.Bed,
 			&i.Medication,
+			&i.Quantity,
 			&i.Uom,
 			&i.RequestTime,
 			&i.NurseRemarks,
@@ -134,4 +141,15 @@ func (q *Queries) GetReadytoCollect(ctx context.Context) ([]MedicationOrder, err
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateMedicationOrder = `-- name: UpdateMedicationOrder :exec
+UPDATE medication_orders
+SET STATUS = 'READY TO COLLECT'
+WHERE ORDER_NUMBER = ?
+`
+
+func (q *Queries) UpdateMedicationOrder(ctx context.Context, orderNumber int64) error {
+	_, err := q.db.ExecContext(ctx, updateMedicationOrder, orderNumber)
+	return err
 }
