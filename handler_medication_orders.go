@@ -2,6 +2,7 @@ package main
 
 import (
 	"ImpatientOrderSystem/internal/database"
+	"ImpatientOrderSystem/internal/util"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -60,6 +61,12 @@ func (cfg *config) handlerMedicationOrderList(w http.ResponseWriter, r *http.Req
 	// transform from []database.MedicationOrder to []MedicationOrder
 	medicationOrderList := make([]MedicationOrder, len(medicationOrderListDB))
 	for i, medicationOrder := range medicationOrderListDB {
+		statusStr, err := util.OrderStatusToString(util.OrderStatus(medicationOrder.StatusID))
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Unhandled status integer from DB", err)
+			return
+		}
+
 		medicationOrderList[i] = MedicationOrder{
 			OrderNumber:     int(medicationOrder.OrderNumber),
 			FileNumber:      int(medicationOrder.FileNumber),
@@ -70,7 +77,7 @@ func (cfg *config) handlerMedicationOrderList(w http.ResponseWriter, r *http.Req
 			Uom:             medicationOrder.Uom.String,
 			RequestTime:     medicationOrder.RequestTime,
 			NurseRemarks:    medicationOrder.NurseRemarks.String,
-			Status:          medicationOrder.Status,
+			Status:          statusStr,
 			PharmacyRemarks: medicationOrder.PharmacyRemarks.String,
 		}
 	}

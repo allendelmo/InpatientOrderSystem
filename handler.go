@@ -2,6 +2,7 @@ package main
 
 import (
 	"ImpatientOrderSystem/internal/database"
+	"ImpatientOrderSystem/internal/util"
 	"context"
 	"database/sql"
 	"fmt"
@@ -14,25 +15,6 @@ import (
 	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"
 )
-
-type Users struct {
-	Username string
-	Password string
-}
-
-type Medication_Orders struct {
-	Order_Number     int32
-	File_Number      int32
-	Nurse_Name       string
-	Ward             string
-	Bed              string
-	Medication       string
-	UOM              string
-	Request_time     time.Time
-	Nurse_Remarks    string
-	Status           string
-	PHARMACY_REMARKS string
-}
 
 // Template cache
 var templates = template.Must(template.ParseGlob("templates/*.html"))
@@ -140,7 +122,7 @@ func (cfg *config) SubmitHandler(w http.ResponseWriter, r *http.Request) {
 			NurseRemarks:    sql.NullString{String: r.FormValue("Nurse_Remarks"), Valid: true},
 			PharmacyRemarks: sql.NullString{},
 			RequestTime:     time.Now(),
-			Status:          "PENDING",
+			StatusID:        int32(util.Pending),
 		}
 
 		err = cfg.db.CreateMedicationOrder(r.Context(), createMedicationOrderParams)
@@ -160,36 +142,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(w, "register.html", nil)
 }
 
-// TODO: refactor db to use SQLC
-func (cfg *config) userRegisterHandler(w http.ResponseWriter, r *http.Request) {
-	//Hash the password before storing it in the database
-	DB, err := sql.Open("postgres", cfg.dbUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if r.Method == "POST" {
-		username := r.FormValue("username")
-		password := r.FormValue("password")
-		First_Name := r.FormValue("First Name")
-		Last_Name := r.FormValue("Last Name")
-		Ward := r.FormValue("Ward")
-		Permission := r.FormValue("Permission")
-		createdAt := time.Now()
-
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-		if err != nil {
-			return
-		}
-
-		_, err = DB.Exec("INSERT INTO users (id, username, password,ward,PERMISSION,createdat,first_name,last_name) VALUES (gen_random_uuid(),$1,$2,$3,$4,$5,$6,$7)", username, hashedPassword, Ward, Permission, createdAt.Format(time.ANSIC), First_Name, Last_Name)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-	}
-}
-
 // FOR DISPLAYING DATA IN DASHBOARD FOR ALL
 func (cfg *config) displayhandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("templates/dashboard.html"))
@@ -199,11 +151,17 @@ func (cfg *config) displayhandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	medicationOrders := []Medication_Orders{}
+	medicationOrders := []Medication_Order_OLD{}
 
 	// transform from []sqlc.GetMedicationOrderListRow to []Medication_Orders
 	for _, row := range rows {
-		medicationOrders = append(medicationOrders, Medication_Orders{
+		statusStr, err := util.OrderStatusToString(util.OrderStatus(row.StatusID))
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Unhandled status integer from DB", err)
+			return
+		}
+
+		medicationOrders = append(medicationOrders, Medication_Order_OLD{
 			Order_Number:     row.OrderNumber,
 			File_Number:      row.FileNumber,
 			Nurse_Name:       row.NurseName.String,
@@ -213,7 +171,7 @@ func (cfg *config) displayhandler(w http.ResponseWriter, r *http.Request) {
 			UOM:              row.Uom.String,
 			Request_time:     row.RequestTime.Round(2),
 			Nurse_Remarks:    row.NurseRemarks.String,
-			Status:           row.Status,
+			Status:           statusStr,
 			PHARMACY_REMARKS: "",
 		})
 	}
@@ -231,10 +189,16 @@ func (cfg *config) CollectHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	MEDICATION_ORDER := []Medication_Orders{}
+	MEDICATION_ORDER := []Medication_Order_OLD{}
 
 	for _, row := range rows {
-		MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Orders{
+		statusStr, err := util.OrderStatusToString(util.OrderStatus(row.StatusID))
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Unhandled status integer from DB", err)
+			return
+		}
+
+		MEDICATION_ORDER = append(MEDICATION_ORDER, Medication_Order_OLD{
 			Order_Number:     row.OrderNumber,
 			File_Number:      row.FileNumber,
 			Nurse_Name:       row.NurseName.String,
@@ -244,7 +208,7 @@ func (cfg *config) CollectHandler(w http.ResponseWriter, r *http.Request) {
 			UOM:              row.Uom.String,
 			Request_time:     row.RequestTime,
 			Nurse_Remarks:    row.NurseRemarks.String,
-			Status:           row.Status,
+			Status:           statusStr,
 			PHARMACY_REMARKS: "",
 		})
 	}

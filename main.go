@@ -17,7 +17,8 @@ type config struct {
 	db *database.Queries
 	// platform  string // TODO
 	// jwtSecret string // TODO
-	dbUrl string
+	dbUrl    string
+	platform string
 }
 
 func main() {
@@ -25,7 +26,18 @@ func main() {
 
 	// get env variables
 	godotenv.Load()
-	dbUrl := os.Getenv("DB_URL")
+
+	platform := os.Getenv("PLATFORM")
+	if platform == "" {
+		log.Fatal("Cannot get env variable PLATFORM")
+	}
+
+	var dbUrl string
+	if platform == "dev" {
+		dbUrl = os.Getenv("DB_URL_TEST")
+	} else {
+		dbUrl = os.Getenv("DB_URL")
+	}
 	if dbUrl == "" {
 		log.Fatal("Cannot get env variable DB_URL")
 	}
@@ -40,8 +52,9 @@ func main() {
 
 	// initialize config
 	cfg := config{
-		db:    dbQueries,
-		dbUrl: dbUrl,
+		db:       dbQueries,
+		dbUrl:    dbUrl,
+		platform: platform,
 	}
 
 	// create server mux and register handlers
@@ -54,12 +67,12 @@ func main() {
 	mux.HandleFunc("/Order", OrderHandler)
 
 	// TODO: fix api handlers (use Methods: GET, POST)
-	mux.HandleFunc("/login", cfg.login)
 	mux.HandleFunc("/dispense", cfg.handlerDispense)
 	mux.HandleFunc("/logout", logoutHandler)
-	mux.HandleFunc("/register", cfg.userRegisterHandler)
 	mux.HandleFunc("/Submit", cfg.SubmitHandler)
 
+	mux.HandleFunc("POST /api/register", cfg.handlerRegisterUser)
+	mux.HandleFunc("GET /api/login", cfg.login)
 	mux.HandleFunc("GET /api/medication_orders", cfg.handlerMedicationOrderList)
 	mux.HandleFunc("POST /api/medication_orders", cfg.handlerMedicationOrderCreate)
 	mux.HandleFunc("POST /api/users", cfg.handlerMedicationOrderCreate)

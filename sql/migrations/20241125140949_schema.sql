@@ -1,8 +1,4 @@
 -- +goose Up
-CREATE TABLE statuses (
-    id UUID PRIMARY KEY,
-    name TEXT NOT NULL
-);
 CREATE TABLE medication_orders (
     order_number SERIAL PRIMARY KEY,
     file_number INTEGER NOT NULL,
@@ -14,15 +10,15 @@ CREATE TABLE medication_orders (
     uom TEXT,
     request_time TIMESTAMP NOT NULL,
     nurse_remarks TEXT,
-    status_id UUID NOT NULL REFERENCES statuses(id),
+    status_id INTEGER NOT NULL,
     pharmacy_remarks TEXT
 );
 CREATE TABLE users (
     id UUID PRIMARY KEY,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
     hashed_password TEXT NOT NULL,
     ward TEXT NOT NULL,
-    permission TEXT NOT NULL,
+    permission_id INTEGER NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     first_name TEXT,
@@ -30,5 +26,4 @@ CREATE TABLE users (
 );
 -- +goose Down
 DROP TABLE medication_orders,
-users,
-statuses;
+users;
