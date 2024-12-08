@@ -1,0 +1,11 @@
+version: 1
+frontend:
+  phases:
+    build:
+      commands: go run .
+  artifacts:
+    baseDirectory: /
+    files:
+      - "**/*"
+  cache:
+    paths: []
