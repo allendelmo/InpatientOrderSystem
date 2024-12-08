@@ -3,11 +3,9 @@ backend:
   phases:
     preBuild:
       commands:
-        - apt-get update && apt-get install -y golang
-        - go version
+        - apt-get install -y golang
     build:
       commands:
-        - go mod tidy
         - go build -o main
   artifacts:
     baseDirectory: .
@@ -16,8 +14,8 @@ backend:
   cache:
     paths:
       - /root/go/pkg/mod/**/*
-frontend:
-  phases:
-    build:
-      commands:
-        - /
+# frontend:
+#   phases:
+#     build:
+#       commands:
+#         - /
