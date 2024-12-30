@@ -31,7 +31,7 @@ type User struct {
 	Username       string
 	HashedPassword string
 	Ward           string
-	Permission     string
+	PermissionID   int32
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	FirstName      sql.NullString

@@ -18,19 +18,19 @@ INSERT INTO users (
         username,
         hashed_password,
         ward,
-        permission,
+        permission_id,
         first_name,
         last_name
     )
 VALUES (gen_random_uuid(), NOW(), NOW(), $1, $2, $3, $4, $5, $6)
-RETURNING id, username, hashed_password, ward, permission, created_at, updated_at, first_name, last_name
+RETURNING id, username, hashed_password, ward, permission_id, created_at, updated_at, first_name, last_name
 `
 
 type RegisterUserParams struct {
 	Username       string
 	HashedPassword string
 	Ward           string
-	Permission     string
+	PermissionID   int32
 	FirstName      sql.NullString
 	LastName       sql.NullString
 }
@@ -40,7 +40,7 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 		arg.Username,
 		arg.HashedPassword,
 		arg.Ward,
-		arg.Permission,
+		arg.PermissionID,
 		arg.FirstName,
 		arg.LastName,
 	)
@@ -50,7 +50,7 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 		&i.Username,
 		&i.HashedPassword,
 		&i.Ward,
-		&i.Permission,
+		&i.PermissionID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.FirstName,

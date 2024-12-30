@@ -71,11 +71,10 @@ func main() {
 	mux.HandleFunc("/logout", logoutHandler)
 	mux.HandleFunc("/Submit", cfg.SubmitHandler)
 
-	mux.HandleFunc("POST /api/register", cfg.handlerRegisterUser)
 	mux.HandleFunc("GET /api/login", cfg.login)
+	mux.HandleFunc("POST /api/users", cfg.handlerRegisterUser)
 	mux.HandleFunc("GET /api/medication_orders", cfg.handlerMedicationOrderList)
 	mux.HandleFunc("POST /api/medication_orders", cfg.handlerMedicationOrderCreate)
-	mux.HandleFunc("POST /api/users", cfg.handlerMedicationOrderCreate)
 	//mux.HandleFunc("POST /api/medication_orders", cfg.handlerDispense)
 	//http.HandleFunc("/authenticate", authenticate)
 

@@ -6,7 +6,7 @@ INSERT INTO users (
         username,
         hashed_password,
         ward,
-        permission,
+        permission_id,
         first_name,
         last_name
     )
